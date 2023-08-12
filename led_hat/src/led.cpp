@@ -6,10 +6,13 @@
 #include "friend.h"
 
 #define LED_PIN     5
-#define NUM_LEDS    300
+#define NUM_LEDS    20
 //#define BRIGHTNESS  100
-#define LED_TYPE    WS2812B
-#define COLOR_ORDER GRB
+// #define LED_TYPE    WS2812B
+// SK6812 timing more closely matches WS2811
+#define LED_TYPE    WS2811
+// SK2812 expected RGBW, WS2812B expect GRB
+#define COLOR_ORDER RGB
 CRGB leds[NUM_LEDS];
 
 CRGBPalette16 currentPalette;
@@ -17,6 +20,24 @@ CRGBPalette16 targetPalette;
 TBlendType    currentBlending;
 
 #define UPDATES_PER_SECOND 50
+
+struct RGBW {
+  uint8_t r;
+  uint8_t g;
+  uint8_t b;
+  uint8_t w;
+};
+
+RGBW leds_rgbw[NUM_LEDS];
+
+RGBW rgb_2_rgbw(const CRGB rgb) {
+   RGBW ret;
+   ret.r = rgb.r;
+   ret.g = rgb.g;
+   ret.b = rgb.b;
+   ret.w = 0;
+   return ret;
+}
 
 //extern const TProgmemPalette16 only_red PROGMEM;
 
@@ -180,6 +201,14 @@ DEFINE_GRADIENT_PALETTE( aspectcolr_gp ) {
   191, 255,  0,  0,
   255, 255,255,  0};
 
+DEFINE_GRADIENT_PALETTE( full_white ) {
+  0, 255,255,255,
+  255, 255,255,255};
+
+DEFINE_GRADIENT_PALETTE( only_orange ) {
+  0, 255,165,0,
+  255, 255,165,0};
+
 DEFINE_GRADIENT_PALETTE( only_red ) {
     0, 255,0,0,
     255, 255,0,0};
@@ -204,9 +233,9 @@ DEFINE_GRADIENT_PALETTE( only_teal ) {
     0, 0,240,255,
     255, 0,240,255 };
 
-DEFINE_GRADIENT_PALETTE( only_orange ) {
-    0, 255,128,0,
-    255, 255,128,0 };
+// DEFINE_GRADIENT_PALETTE( only_orange ) {
+//     0, 255,128,0,
+//     255, 255,128,0 };
 
 void runPaletteGradient(int index, uint8_t brightness)
 {
@@ -266,7 +295,7 @@ void ChooseLonerGradient(unsigned long time, int speed)
     }
 
 
-    targetPalette = only_red;
+    targetPalette = full_white;
     currentBlending = LINEARBLEND;
     // if( secondHand <= 1 * speed)  { targetPalette = CloudColors_p;           currentBlending = LINEARBLEND; }
     // else if( secondHand <= 1 * speed + 3)  { targetPalette = only_red;         currentBlending = LINEARBLEND; }
@@ -312,7 +341,7 @@ void ChooseFriendGradient(unsigned long time, int speed)
 }
 
 void LED_Init() {
-    FastLED.addLeds<LED_TYPE, LED_PIN, COLOR_ORDER>(leds, NUM_LEDS).setCorrection( TypicalLEDStrip );
+    FastLED.addLeds<LED_TYPE, LED_PIN, COLOR_ORDER>((CRGB*) leds_rgbw, NUM_LEDS).setCorrection( TypicalLEDStrip );
     //FastLED.setBrightness(BRIGHTNESS);
 
     targetPalette = RainbowColors_p;
@@ -347,19 +376,29 @@ void LED_Update()
     static unsigned long last_brightness_update_time = 0;
     uint8_t index = Time_GetTime() / (1000 / UPDATES_PER_SECOND);
 
-    int brightness_change = (Time_GetTime() - last_brightness_update_time) / (1000 / 25);
-    if (friendExists) {
-      ChooseFriendGradient(Time_GetTime(), 5);
-    } else {
-      ChooseLonerGradient(Time_GetTime(), 5);
-    }
+    // int brightness_change = (Time_GetTime() - last_brightness_update_time) / (1000 / 25);
+    // if (friendExists) {
+    //   ChooseFriendGradient(Time_GetTime(), 5);
+    // } else {
+    // ChooseLonerGradient(Time_GetTime(), 5);
+    // }
+
+    targetPalette = full_white;
     nblendPaletteTowardPalette( currentPalette, targetPalette, 48);
 
 
-    uint8_t brightness = get_brightness(friendExists);
+    uint8_t brightness = 100;
+    // uint8_t brightness = get_brightness(friendExists);
     //Serial.println(brightness);
     runPaletteGradient(index, brightness);
 
+    CRGB white = {255, 255, 255};
+    for (int i = 0; i < NUM_LEDS; i++) {
+      leds[i] = white;
+    }
+    for (int i = 0; i < NUM_LEDS; i++) {
+      leds_rgbw[i] = rgb_2_rgbw(leds[i]);
+    }
     FastLED.show();
 }
 
