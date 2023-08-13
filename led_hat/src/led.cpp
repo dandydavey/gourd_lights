@@ -6,7 +6,7 @@
 #include "friend.h"
 
 #define LED_PIN     5
-#define NUM_LEDS    20
+#define NUM_LEDS    300
 //#define BRIGHTNESS  100
 // #define LED_TYPE    WS2812B
 // SK6812 timing more closely matches WS2811
@@ -392,7 +392,7 @@ void LED_Update()
     //Serial.println(brightness);
     runPaletteGradient(index, brightness);
 
-    CRGB white = {255, 255, 255};
+    CRGB white = {17, 26, 0};
     for (int i = 0; i < NUM_LEDS; i++) {
       leds[i] = white;
     }
