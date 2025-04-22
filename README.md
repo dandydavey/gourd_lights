@@ -2,6 +2,19 @@
 
 This repository contains the code that powers the interior lighting for the "Loss in Translation" Burning Man 2023 Honorarium art installation. The system creates synchronized lighting effects across multiple LED strips throughout the interior of the piece.
 
+## Project Images
+
+### The Installation
+
+![Loss in Translation](./images/gourd.jpeg)
+_Loss in Translation daytime_
+
+![Interior lighting](./images/lit_interior.jpeg)
+_Interior lighting_
+
+![Dome](./images/interior_up.jpg)
+_Interior dome_
+
 # Synced LED Strips
 
 This uses the ESP NOW library to synchronize LED strips. The algorithm is as follows: Every N seconds, a microcontroller sends out its current time, mod 100 seconds. Whenever a module hears of this broadcasted message, it sets its time to the average of what it received and its own local time. It immediately broadcasts its new averaged time if the two times were too far apart. This allows the modules to quickly synchronize their times.
