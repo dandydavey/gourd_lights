@@ -9,10 +9,10 @@ This repository contains the code that powers the interior lighting for the "Los
 ![Loss in Translation](./images/gourd.jpeg)
 _Loss in Translation daytime_
 
-![Interior lighting](./images/lit_interior.jpeg)
+![Interior lighting](./images/interior.jpeg)
 _Interior lighting_
 
-![Dome](./images/interior_up.jpg)
+![Dome](./images/interior_up.jpeg)
 _Interior dome_
 
 # Synced LED Strips
